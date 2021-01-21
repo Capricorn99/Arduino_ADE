@@ -42,10 +42,8 @@
 
 #define SPI_MOSI    11  //MOSI
 #define SPI_MISO    12  //MISO 
-#define SPI_CLK     13  //sck
-#define SPI_SS      10  //ss
-
-#define MAX_BUF     100
+#define SPI_CLK     13  //SCK
+#define SPI_SS      10  //SS
 
 //opcodes
 #define WREN  6
@@ -62,9 +60,3 @@ byte multi_byte_data[3];
 byte eeprom_input_data = 0;
 long long_eeprom_data = 0;
 byte clr;
-int address = 0;
-//data buffer
-char buffer [128];
-long vrms_buf[MAX_BUF];
-
-unsigned long time;

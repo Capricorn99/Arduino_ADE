@@ -15,9 +15,9 @@ void spi_init() {
   delay(1000);
 }
 
-void fill_buffer() {
-  for (int i = 0; i < 128; i++) buffer[i]=i;
-}
+//void fill_buffer() {
+//  for (int i = 0; i < 128; i++) buffer[i]=i;
+//}
 
 char spi_transfer(volatile char data) {
   SPDR = data;                    // Start the transmission
@@ -34,7 +34,7 @@ void write_to_eeprom(int address, long write_buffer, int bytes_to_write) {
 
   //here there should be a t7 delay, however long that is
   for (int i = 0; i < bytes_to_write; i++) {
-    write_data = (byte) write_buffer >> (8*((bytes_to_write - 1) - i));
+    write_data = (byte) (write_buffer >> (8*((bytes_to_write - 1) - i)));
     spi_transfer((char) write_data);      //send data byte
   }
   digitalWrite(SPI_SS, HIGH); //release chip, signal end transfer
@@ -61,54 +61,34 @@ long read_eeprom(int address, int bytes_to_read) {
 
 void setup() {
   Serial.begin(115200);
+  while(!Serial) delay(50);
   spi_init();
   
-  // Test write
-  address = LINECYC;
-  Serial.print(address, HEX);
-  eeprom_output_data = read_eeprom(STATUS, 2);
-
-  long TestWrite;
-  TestWrite = 0xABCD;
-  Serial.println(TestWrite, BIN);
-  write_to_eeprom(address, TestWrite, 2);
-  Serial.println(eeprom_output_data, BIN);
-  eeprom_output_data = read_eeprom(address, 2);
-  Serial.println("Completed basic read write test");
-  delay(3000);
   write_to_eeprom(GAIN, 0x00, 1);
-  eeprom_output_data = read_eeprom(GAIN, 1);
   Serial.print("GAIN: ");
-  Serial.println(eeprom_output_data, HEX);
+  Serial.println(read_eeprom(GAIN, 1), HEX);
   delay(1000);
-//  long_eeprom_data = read_eeprom(VRMS, 3);
-//  for (int i = 0; i < MAX_BUF; i++) {
-//    vrms_buf[i] = long_eeprom_data;
-//  }
+//
+//  write_to_eeprom(MODE, 0x000C, 2);
+//  Serial.print("MODE: ");
+//  Serial.println(read_eeprom(MODE, 2), HEX);
+//  delay(1000);
 }
 
 void loop() {
-  double vrms_out = 0;
+  double vpeak = 0;
+//  Serial.print("VPEAK: ");
+//  Serial.println(vpeak = read_eeprom(RSTVPEAK, 3));
   
-  long_eeprom_data = read_eeprom(VRMS, 3);
-//  Serial.println("VRMS CHECK");
-//  Serial.println(long_eeprom_data);
-//  Serial.println(long_eeprom_data, HEX);
-  for (int i = MAX_BUF - 1; i > 0; i--) {
-    vrms_buf[i] = vrms_buf[i - 1];
+  for(int i = 0; i < 20; i++){
+    vpeak += read_eeprom(RSTVPEAK, 3);
+    delay(50);
   }
-  vrms_buf[0] = long_eeprom_data;
+  vpeak /= 20;
+  double vrms = (vpeak - 630)*225.5/(1705 - 630);
+  if (vrms < 0) vrms = 0;
   
-  for (int i = 0; i < MAX_BUF; i++) {
-    vrms_out += vrms_buf[i];
-  }
-
-  vrms_out = (vrms_out - 74240)/2194.3;
-  if ((unsigned long) (millis() - time) > 1000) {
-    Serial.print(vrms_out/MAX_BUF);
-    Serial.println("V");
-    time = millis();
-  }
-  delay(10);
-  
+  Serial.print("Vrms = ");
+  Serial.print(vrms, 5);
+  Serial.println(" V");
 }

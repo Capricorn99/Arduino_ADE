@@ -15,10 +15,6 @@ void spi_init() {
   delay(1000);
 }
 
-//void fill_buffer() {
-//  for (int i = 0; i < 128; i++) buffer[i]=i;
-//}
-
 char spi_transfer(volatile char data) {
   SPDR = data;                    // Start the transmission
   while (!(SPSR & (1<<SPIF)));    // Wait the end of the transmission
@@ -68,27 +64,13 @@ void setup() {
   Serial.print("GAIN: ");
   Serial.println(read_eeprom(GAIN, 1), HEX);
   delay(1000);
-//
-//  write_to_eeprom(MODE, 0x000C, 2);
-//  Serial.print("MODE: ");
-//  Serial.println(read_eeprom(MODE, 2), HEX);
-//  delay(1000);
 }
 
 void loop() {
-  double vpeak = 0;
-//  Serial.print("VPEAK: ");
-//  Serial.println(vpeak = read_eeprom(RSTVPEAK, 3));
-  
-  for(int i = 0; i < 20; i++){
-    vpeak += read_eeprom(RSTVPEAK, 3);
-    delay(50);
-  }
-  vpeak /= 20;
-  double vrms = (vpeak - 630)*225.5/(1705 - 630);
-  if (vrms < 0) vrms = 0;
-  
-  Serial.print("Vrms = ");
-  Serial.print(vrms, 5);
-  Serial.println(" V");
+  Serial.print("VRMS: ");
+  Serial.println(read_eeprom(VRMS, 3));
+  delay(1000);
+  Serial.print("MODE: ");
+  Serial.println(read_eeprom(MODE, 2), HEX);
+  delay(1000);
 }

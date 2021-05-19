@@ -64,13 +64,18 @@ void setup() {
   Serial.print("GAIN: ");
   Serial.println(read_eeprom(GAIN, 1), HEX);
   delay(1000);
-}
-
-void loop() {
-  Serial.print("VRMS: ");
-  Serial.println(read_eeprom(VRMS, 3));
-  delay(1000);
+  
   Serial.print("MODE: ");
   Serial.println(read_eeprom(MODE, 2), HEX);
   delay(1000);
+
+  //write_to_eeprom(MODE,0x000C,2);
+}
+
+void loop() {
+  
+  Serial.print("VRMS: ");
+  Serial.println(read_eeprom(VRMS, 3));
+  delay(1000);
+
 }
